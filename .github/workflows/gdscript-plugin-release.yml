@@ -14,6 +14,11 @@ on:
                 description: 'Release title. Defaults to tag name or an auto-generated name.'
                 required: false
                 type: string
+            prefix_tag_and_name:
+                description: 'Prefix the tag and name with "intellij-plugin-" to distinguish it from godot addon release'
+                required: false
+                type: boolean
+                default: true
             prerelease:
                 description: 'Mark release as prerelease'
                 required: false
@@ -73,15 +78,20 @@ jobs:
               run: |
                   TAG_INPUT="${{ github.event.inputs.tag_name }}"
                   NAME_INPUT="${{ github.event.inputs.release_name }}"
+                  PREFIX_FLAG="${{ github.event.inputs.prefix_tag_and_name }}"                                                                                       
+                  PREFIX=""
+                  if [[ "$PREFIX_FLAG" == "true" ]]; then                                                                                                            
+                   PREFIX="intellij-plugin-"                                                                                                                        
+                  fi     
                   if [ -z "$TAG_INPUT" ]; then
-                    TAG="intellij-plugin-${GITHUB_RUN_NUMBER}"
+                    TAG="${PREFIX}${GITHUB_RUN_NUMBER}"
                   else
-                    TAG="intellij-plugin-$TAG_INPUT"
+                    TAG="${PREFIX}$TAG_INPUT"
                   fi
                   if [ -z "$NAME_INPUT" ]; then
                     NAME="$TAG"
                   else
-                    NAME="$NAME_INPUT"
+                    NAME="${PREFIX}$NAME_INPUT"
                   fi
                   echo "tag=$TAG" >> "$GITHUB_OUTPUT"
                   echo "name=$NAME" >> "$GITHUB_OUTPUT"
